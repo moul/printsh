@@ -50,10 +50,10 @@ func (p *PrintSH) Start() {
 
 	for _, stream := range p.Streams {
 		wg.Add(1)
-		go func() {
+		go func(stream Stream) {
 			defer wg.Done()
 			stream.Start()
-		}()
+		}(stream)
 	}
 
 	wg.Wait()

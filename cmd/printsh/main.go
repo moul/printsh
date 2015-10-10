@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path"
@@ -28,16 +27,26 @@ func action(c *cli.Context) {
 
 	if len(c.Args()) > 0 {
 		cmd := exec.Command(c.Args()[0], c.Args()[1:]...)
-		// psh.AddStream(cmd.Stdout, "stdout")
-		// psh.AddStream(cmd.Stderr, "stderr")
+
 		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		fmt.Println(cmd.Run())
+
+		stdoutPipe, err := cmd.StdoutPipe()
+		if err != nil {
+			panic(err)
+		}
+		psh.AddStream(stdoutPipe, "stdout")
+
+		stderrPipe, err := cmd.StderrPipe()
+		if err != nil {
+			panic(err)
+		}
+		psh.AddStream(stderrPipe, "stderr")
+
+		go psh.Start()
+		cmd.Run()
 	} else {
 		psh.Name = "<INPUT>"
 		psh.AddStream(os.Stdin, "stdin")
+		psh.Start()
 	}
-
-	psh.Start()
 }
