@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"os/exec"
 	"path"
 
 	"github.com/codegangsta/cli"
@@ -25,6 +27,13 @@ func action(c *cli.Context) {
 	psh := printsh.New()
 
 	if len(c.Args()) > 0 {
+		cmd := exec.Command(c.Args()[0], c.Args()[1:]...)
+		// psh.AddStream(cmd.Stdout, "stdout")
+		// psh.AddStream(cmd.Stderr, "stderr")
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		fmt.Println(cmd.Run())
 	} else {
 		psh.Name = "<INPUT>"
 		psh.AddStream(os.Stdin, "stdin")
